@@ -1,15 +1,15 @@
 from math import floor
 from Actions import *
-import Numpy as np
+import numpy as np
 
 STANDARD_REWARD = 1
 CRASH_REWARD = -20
 END_REWARD = -20
 ACTION_SUCCESSFUL_RATE = 0.8
-N_ROW = 7
-N_COL = 7
+N_ROW = 6
+N_COL = 6
 CRASH_BLOCKS = [(2, 2), (0, 2), (2, 1), (3, 1)]
-INIT_STATE = (0, 0, 6, 6)
+INIT_STATE = (0, 0, 5, 5)
 
 
 class TwoPlayerEnv:
@@ -29,6 +29,7 @@ class TwoPlayerEnv:
     def play(self, player, opponent):
         state = self.init_state
         terminated = False
+        cumulative_reward_player = 0
         while not terminated:
             action_player = player.choose_action(state)
             action_opponent = opponent.choose_action(state)
@@ -47,12 +48,16 @@ class TwoPlayerEnv:
             reward_player = self.get_state_reward(new_state)
             reward_oppponent = - self.get_state_reward(new_state)
 
-            player.update_Q(reward_player, state, new_state)
-            opponent.update_Q(reward_oppponent, state, new_state)
+            player.observe(reward_player, state, action_player, action_opponent, new_state)
+            opponent.observe(reward_oppponent, state, action_opponent, action_player, new_state)
+
+            cumulative_reward_player += reward_player
 
             state = new_state
             if self.is_terminal_state(state):
                 terminated = True
+
+        return cumulative_reward_player
 
     def __is_action_valid(self, row, col, action):
         new_row = row + get_movement(action)[0]
@@ -73,6 +78,9 @@ class TwoPlayerEnv:
         :return: number of states
         '''
         return len(self.states)
+
+    def get_n_actions(self):
+        return N_ACTIONS
 
     def get_state_reward(self, state):
         '''
@@ -149,3 +157,26 @@ class TwoPlayerEnv:
         row2 = floor(state2 / self.n_cols)
         col2 = state2 % self.n_cols
         return row1, col1, row2, col2
+
+    def print_state(self, state):
+        row1, col1, row2, col2 = self.state2rc(state)
+        sep_line = ''
+        for i in range(4 * N_ROW):
+            sep_line += '-'
+        print(sep_line)
+        for i in range(self.n_rows):
+            line = ''
+            for j in range(self.n_cols):
+                if i == row1 == row2 and j == col1 == col2:
+                    line += (' O |')
+                else:
+                    if (i, j) in self.crash_blocks:
+                        line += ' C |'
+                    elif i == row1 and j == col1:
+                        line += (' X |')
+                    elif i == row2 and j == col2:
+                        line += (' Y |')
+                    else:
+                        line += ('   |')
+            print(line)
+            print(sep_line)
