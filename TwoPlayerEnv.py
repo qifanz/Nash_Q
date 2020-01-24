@@ -6,10 +6,10 @@ STANDARD_REWARD = 1
 CRASH_REWARD = -20
 END_REWARD = -20
 ACTION_SUCCESSFUL_RATE = 0.8
-N_ROW = 6
-N_COL = 6
-CRASH_BLOCKS = [(2, 2), (0, 2), (2, 1), (3, 1)]
-INIT_STATE = (0, 0, 5, 5)
+N_ROW = 5
+N_COL = 5
+CRASH_BLOCKS = [(2, 2), (0, 2), (2, 1), (3, 1), (0, 3), (2, 4)]
+INIT_STATE = (0, 0, 4, 4)
 
 
 class TwoPlayerEnv:
@@ -46,10 +46,10 @@ class TwoPlayerEnv:
             new_state = self.rc2state(row_player, col_player, row_opponent, col_opponent)
 
             reward_player = self.get_state_reward(new_state)
-            reward_oppponent = - self.get_state_reward(new_state)
+            reward_opponent = - self.get_state_reward(new_state)
 
             player.observe(reward_player, state, action_player, action_opponent, new_state)
-            opponent.observe(reward_oppponent, state, action_opponent, action_player, new_state)
+            opponent.observe(reward_opponent, state, action_opponent, action_player, new_state)
 
             cumulative_reward_player += reward_player
 

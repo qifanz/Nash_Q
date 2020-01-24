@@ -11,8 +11,11 @@ class Player:
 
     def choose_action(self, state):
         equilibrium, policy = self.solve_nash_at_state(state)
-        action = self.random_choose_action_from_policy(policy)
+        action = self.random_choose_action_from_policy(self.normalize_policy(policy))
         return action
+
+    def normalize_policy(self, policy):
+        return np.divide(policy, np.sum(policy))
 
     def random_choose_action_from_policy(self, policy):
         return np.random.choice(np.arange(0, self.n_actions), p=policy)
